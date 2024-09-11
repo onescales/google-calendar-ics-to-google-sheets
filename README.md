@@ -11,8 +11,9 @@ For a visual overview and full details, see our article at https://onescales.com
 - Open a google sheet
 2. Create Apps Script
 - In Google Sheet Top Menu, Click on Extensions -> App Script
-- Edit the Code.gs file and copy paste this repository Code.gs. 
-- Set a "project title" (for example - ICS Import) and click on "Deploy" -> "New Deployment"
+- Edit the Code.gs file and copy paste this repository Code.gs (https://github.com/onescales/google-calendar-ics-to-google-sheets/blob/main/Code.gs)
+- Create new file via + icon called "UploadForm.html" and copy paste this repository UploadForm.html (https://github.com/onescales/google-calendar-ics-to-google-sheets/blob/main/UploadForm.html)
+- Click on Deploy on top right hand side. Set a "project title" (for example - ICS Import) and click on "Deploy" -> "New Deployment"
 3. Set Permissions of Apps Script and Publish
 Make sure to deploy as "Web app" and autorize permissions.
 4. Go Back to Sheet

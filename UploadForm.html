@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" accept=".ics">
+      <br><br>
+      <input type="button" value="Upload ICS" onclick="uploadFile()">
+      <br><br>
+      <div id="statusMessage"></div>
+    </form>
+
+    <script>
+      function uploadFile() {
+        var fileInput = document.getElementById("fileInput");
+        var statusMessage = document.getElementById("statusMessage");
+        
+        if (fileInput.files.length === 0) {
+          alert("Please select a file.");
+          return;
+        }
+
+        // Display a message that the process may take some time
+        statusMessage.innerHTML = "Uploading and processing the ICS file. This may take a few moments. Please wait...";
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var icsContent = e.target.result;
+          google.script.run.withSuccessHandler(function() {
+            // Display success message when the process is complete
+            statusMessage.innerHTML = "ICS file imported successfully!";
+            alert('ICS file imported successfully!');
+            google.script.host.close();
+          }).handleICSUpload(icsContent);
+        };
+        reader.readAsText(fileInput.files[0]);
+      }
+    </script>
+  </body>
+</html>

@@ -21,6 +21,9 @@ Make sure to deploy as "Web app" and autorize permissions.
 - Select .ICS file from your computer and click on "Upload ICS"
 5. Enjoy The Sheet!
 
+# Additional Notes
+If you would like to open .ics in Excel, then follow all steps above and in Google Sheets, click on "File" -> "Download" - "csv" and open in Excel the csv file.
+
 # Support Us / Donate
 If this helped you in any way, please consider supporting us at https://buymeacoffee.com/onescales
 

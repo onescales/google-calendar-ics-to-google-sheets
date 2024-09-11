@@ -3,7 +3,7 @@ Simple steps to export Google Calendar, get a .ics file and import it to Google 
 
 These steps allow you to DIY instead of using 3rd party apps that cost money or may read your data. It is private to you only and easy to setup.
 
-For a visual overview and full details, see our article at https://onescales.com/ and our youtube video at https://www.youtube.com/watch?v=BRGHDS_-rDI
+For a visual overview and full details, see our article at https://onescales.com/blogs/main/export-google-calendar-ics-to-google-sheets-excel and our youtube video at https://www.youtube.com/watch?v=BRGHDS_-rDI
 
 # Steps
 

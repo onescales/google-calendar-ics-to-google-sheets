@@ -4,19 +4,58 @@
     <form id="uploadForm">
       <input type="file" id="fileInput" accept=".ics">
       <br><br>
+      <div>
+        <label>
+          <input type="checkbox" id="importAllDates" checked onchange="toggleDateRange()">
+          Import All Dates
+        </label>
+      </div>
+      <div id="dateRangeInputs" style="display:none;">
+        <label>From Date: 
+          <input type="date" id="fromDate">
+        </label>
+        <br><br>
+        <label>To Date: 
+          <input type="date" id="toDate">
+        </label>
+      </div>
+      <br>
       <input type="button" value="Upload ICS" onclick="uploadFile()">
       <br><br>
       <div id="statusMessage"></div>
     </form>
 
     <script>
+      function toggleDateRange() {
+        var importAllDates = document.getElementById("importAllDates");
+        var dateRangeInputs = document.getElementById("dateRangeInputs");
+        dateRangeInputs.style.display = importAllDates.checked ? "none" : "block";
+      }
+
       function uploadFile() {
         var fileInput = document.getElementById("fileInput");
         var statusMessage = document.getElementById("statusMessage");
+        var importAllDates = document.getElementById("importAllDates").checked;
         
         if (fileInput.files.length === 0) {
           alert("Please select a file.");
           return;
+        }
+
+        // Validate date range if not importing all dates
+        if (!importAllDates) {
+          var fromDate = document.getElementById("fromDate").value;
+          var toDate = document.getElementById("toDate").value;
+          
+          if (!fromDate || !toDate) {
+            alert("Please select both From and To dates.");
+            return;
+          }
+          
+          if (new Date(fromDate) > new Date(toDate)) {
+            alert("From Date must be before or equal to To Date.");
+            return;
+          }
         }
 
         // Display a message that the process may take some time
@@ -30,7 +69,12 @@
             statusMessage.innerHTML = "ICS file imported successfully!";
             alert('ICS file imported successfully!');
             google.script.host.close();
-          }).handleICSUpload(icsContent);
+          }).handleICSUpload(
+            icsContent, 
+            importAllDates, 
+            !importAllDates ? document.getElementById("fromDate").value : null, 
+            !importAllDates ? document.getElementById("toDate").value : null
+          );
         };
         reader.readAsText(fileInput.files[0]);
       }

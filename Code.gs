@@ -8,11 +8,11 @@ function onOpen() {
 function showUploadDialog() {
   var html = HtmlService.createHtmlOutputFromFile('UploadForm')
       .setWidth(400)
-      .setHeight(400);
+      .setHeight(300);
   SpreadsheetApp.getUi().showModalDialog(html, 'Upload ICS File');
 }
 
-function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
+function handleICSUpload(icsContent) {
   var lines = icsContent.split("\n");
   var events = [];
   var event = {};
@@ -30,7 +30,6 @@ function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
         var expandedEvents = expandRecurringEvent(event, rruleData);
         events = events.concat(expandedEvents);
       } else {
-        // Only add non-recurring events
         events.push(event);
       }
     } else if (line.startsWith("SUMMARY:")) {
@@ -46,14 +45,6 @@ function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
     } else if (line.startsWith("RRULE:")) {
       rruleData = parseRRule(line.replace("RRULE:", ""));
     }
-  }
-
-  // Filter events based on date range if not importing all dates
-  if (!importAllDates && fromDate && toDate) {
-    events = events.filter(function(event) {
-      var eventDate = parseICSDateTime(event.start);
-      return eventDate >= new Date(fromDate) && eventDate <= new Date(toDate);
-    });
   }
 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -92,10 +83,10 @@ function expandRecurringEvent(baseEvent, rruleData) {
   var endDate = parseICSDateTime(baseEvent.end);
   var duration = endDate - startDate;  // Duration in milliseconds
   
-  // Default to 1 year of recurring events if no COUNT or UNTIL is specified
-  var maxOccurrences = rruleData.COUNT ? parseInt(rruleData.COUNT) : 52; // ~1 year of weekly events
+  // Default to 5 years of recurring events if no COUNT or UNTIL is specified
+  var maxOccurrences = rruleData.COUNT ? parseInt(rruleData.COUNT) : 260; // Increased to ~5 years of weekly events
   var until = rruleData.UNTIL ? parseICSDateTime(rruleData.UNTIL) : 
-              new Date(startDate.getTime() + (1 * 365 * 24 * 60 * 60 * 1000)); // 1 year
+              new Date(startDate.getTime() + (5 * 365 * 24 * 60 * 60 * 1000)); // 5 years
   
   var freq = rruleData.FREQ;
   var interval = rruleData.INTERVAL ? parseInt(rruleData.INTERVAL) : 1;

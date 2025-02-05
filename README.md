@@ -5,7 +5,7 @@ These steps allow you to DIY instead of using 3rd party apps that cost money or 
 
 For a visual overview tutorial on ics to csv conversion and full details, see our article at https://onescales.com/blogs/main/export-google-calendar-ics-to-google-sheets-excel and our youtube video at https://www.youtube.com/watch?v=BRGHDS_-rDI
 
-* now supports recurring events up to 5 years forward.
+* now supports recurring events up to 5 years forward and ends in today's date.
 
 # Steps
 
@@ -20,6 +20,7 @@ For a visual overview tutorial on ics to csv conversion and full details, see ou
 Make sure to deploy as "Web app" and autorize permissions.
 4. Go Back to Sheet
 - Click on top menu "ICS Import" -> "Upload and Import ICS"
+- Select All Dates or Specific Timeframe
 - Select .ICS file from your computer and click on "Upload ICS"
 5. Enjoy The Sheet!
 

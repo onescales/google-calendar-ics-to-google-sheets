@@ -1,7 +1,31 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>ICS File Upload</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      #uploadForm {
+        max-width: 400px;
+        margin: auto;
+      }
+      input[type="button"] {
+        padding: 8px 16px;
+        font-size: 1em;
+      }
+      #statusMessage {
+        margin-top: 15px;
+        color: green;
+        font-weight: bold;
+      }
+    </style>
+  </head>
   <body>
     <form id="uploadForm">
+      <h2>Upload ICS File</h2>
       <input type="file" id="fileInput" accept=".ics">
       <br><br>
       <div>
@@ -11,11 +35,13 @@
         </label>
       </div>
       <div id="dateRangeInputs" style="display:none;">
-        <label>From Date: 
+        <label>
+          From Date: 
           <input type="date" id="fromDate">
         </label>
         <br><br>
-        <label>To Date: 
+        <label>
+          To Date: 
           <input type="date" id="toDate">
         </label>
       </div>
@@ -64,10 +90,10 @@
         var reader = new FileReader();
         reader.onload = function(e) {
           var icsContent = e.target.result;
-          google.script.run.withSuccessHandler(function() {
+          google.script.run.withSuccessHandler(function(msg) {
             // Display success message when the process is complete
-            statusMessage.innerHTML = "ICS file imported successfully!";
-            alert('ICS file imported successfully!');
+            statusMessage.innerHTML = msg;
+            alert(msg);
             google.script.host.close();
           }).handleICSUpload(
             icsContent, 

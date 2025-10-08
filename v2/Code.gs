@@ -33,7 +33,8 @@ function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
     var event = {};
     var rruleData = null;
     var inEvent = false;
-    var inAlarm = false; 
+    var inAlarm = false;
+    var attendees = []; // Track attendees for current event
 
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i].trim();
@@ -41,16 +42,21 @@ function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
       if (line.startsWith("BEGIN:VEVENT")) {
         event = {};
         rruleData = null;
+        attendees = []; // Reset attendees for new event
         inEvent = true;
         inAlarm = false; 
       } else if (line.startsWith("END:VEVENT")) {
         inEvent = false;
-        inAlarm = false; 
+        inAlarm = false;
+        
+        // Add attendees to event before processing
+        if (attendees.length > 0) {
+          event.attendees = attendees.join(", ");
+        }
         
         if (!event.start) {
           Logger.log("Skipped event with no DTSTART.");
         } else if (rruleData) {
-          // Logger.log("Found recurring event: " + (event.summary || "No Summary")); // <<< REMOVED THIS LOG
           var expandedEvents = expandRecurringEvent(event, rruleData);
           Logger.log("-> Expanded recurring event '" + (event.summary || "No Summary") + "' to " + expandedEvents.length + " occurrence(s).");
           events = events.concat(expandedEvents);
@@ -85,6 +91,12 @@ function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
             event.location = line.substring(9);
           } else if (line.startsWith("RRULE:")) {
             rruleData = parseRRule(line.substring(6));
+          } else if (line.startsWith("ATTENDEE")) {
+            // Extract attendee information
+            var attendee = parseAttendee(line);
+            if (attendee) {
+              attendees.push(attendee);
+            }
           }
         }
       }
@@ -110,7 +122,7 @@ function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
     sheet.clear();
     
     var outputRows = [];
-    outputRows.push(["Summary", "Start Date", "End Date", "Description", "Location", "Recurrence Info"]);
+    outputRows.push(["Summary", "Start Date", "End Date", "Description", "Location", "Attendees", "Recurrence Info"]);
     
     events.forEach(function(evt) {
       outputRows.push([
@@ -119,6 +131,7 @@ function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
         formatDateTime(evt.end),
         evt.description || "",
         evt.location || "",
+        evt.attendees || "",
         evt.recurrenceInfo || ""
       ]);
     });
@@ -135,6 +148,39 @@ function handleICSUpload(icsContent, importAllDates, fromDate, toDate) {
     Logger.log("Error in handleICSUpload: " + e.toString());
     throw e;
   }
+}
+
+function parseAttendee(line) {
+  // ATTENDEE lines can have parameters like CN (common name), ROLE, PARTSTAT, etc.
+  // Example: ATTENDEE;CN=John Doe;ROLE=REQ-PARTICIPANT:mailto:john@example.com
+  
+  var email = "";
+  var name = "";
+  
+  // Extract email (after mailto:)
+  var mailtoIndex = line.indexOf("mailto:");
+  if (mailtoIndex > -1) {
+    email = line.substring(mailtoIndex + 7).trim();
+  }
+  
+  // Extract common name (CN parameter)
+  var cnMatch = line.match(/CN=([^;:]+)/);
+  if (cnMatch && cnMatch[1]) {
+    name = cnMatch[1].trim();
+    // Remove quotes if present
+    name = name.replace(/^["']|["']$/g, '');
+  }
+  
+  // Return formatted attendee string
+  if (name && email) {
+    return name + " (" + email + ")";
+  } else if (email) {
+    return email;
+  } else if (name) {
+    return name;
+  }
+  
+  return null;
 }
 
 function parseRRule(rrule) {
@@ -205,6 +251,7 @@ function expandRecurringEvent(baseEvent, rruleData) {
           end: formatICSDateTime(new Date(occurrenceDate.getTime() + duration)),
           description: baseEvent.description || "",
           location: baseEvent.location || "",
+          attendees: baseEvent.attendees || "",
           recurrenceInfo: "Recurring monthly (" + byDay + ")"
         };
         expandedEvents.push(newEvent);
@@ -225,6 +272,7 @@ function expandRecurringEvent(baseEvent, rruleData) {
         end: formatICSDateTime(new Date(currentDate.getTime() + duration)),
         description: baseEvent.description || "",
         location: baseEvent.location || "",
+        attendees: baseEvent.attendees || "",
         recurrenceInfo: "Recurring " + (freq ? freq.toLowerCase() : "")
       };
       expandedEvents.push(newEvent);
